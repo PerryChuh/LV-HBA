@@ -12,12 +12,15 @@ def proj(x, A, b=None):
     if A.ndim < 2:
         raise ValueError("Matrix A must be at least 2-dimensional.")
     I = np.eye(x.shape[0])
+    # 矩阵乘法
     A1 = A @ A.T
+    # 计算矩阵的 Moore-Penrose 伪逆
     A_ = np.linalg.pinv(A1)
     if b is None:
     #     return np.matmul(I-A_ @ A,x)
     # else:
     #     return np.matmul(I-A_ @ A,x)-A_@b
+    # 也是矩阵乘法
         return np.matmul(I - A.T @ A_ @ A, x)
     else:
         return np.matmul(I - A.T @ A_ @ A, x) - A.T @ A_ @ b
