@@ -70,44 +70,53 @@ def fun(n):
     theta1 = np.ones((100, 1))
     theta2 = np.ones((100, 1))
     lambda1 = 1
-    z = 1
-
+    lambda2 = 1
+    z1 = 1
+    z2 = 1
     for k in range(n):
         x_k = x
         y1_k = y1
         y2_k = y2
-        z_k = z
+        z1_k = z1
+        z2_k = z2
         theta1_k = theta1
         theta2_k = theta2
         lambda1_k = lambda1
+        lambda2_k = lambda2
 
         # dk_0 = f_y(x, theta1, theta2) + lambda1 * g_y(x, theta1, theta2) + (theta - y) / gamma1
-        dk_01 = theta1_k - x_k + lambda1_k * e1 + (theta1_k - y1_k) / gamma1
-        dk_02 = e1 + lambda1_k * e1 + (theta2_k - y2_k) / gamma1
+        dk_01 = theta1_k - x_k + (lambda1_k - lambda2_k) * e1 + (theta1_k - y1_k) / gamma1
+        dk_02 = e1 + (lambda1_k - lambda2_k) * e1 + (theta2_k - y2_k) / gamma1
 
         # dk_1 = - g(x, theta1, theta2) + (lambda1 - z) / gamma2
-        dk_1 = - e1.T @ x_k - e1.T @ theta1_k - e1.T @ theta2_k + (lambda1_k - z_k) / gamma2
+        dk_11 = - e1.T @ x_k - e1.T @ theta1_k - e1.T @ theta2_k + (lambda1_k - z1_k) / gamma2
+        dk_12 = e1.T @ x_k + e1.T @ theta1_k + e1.T @ theta1_k + (lambda2_k - z2_k) / gamma2
         # update theta, lambda
+
         theta1_k1 = theta1_k - (eta * dk_01)
         theta2_k1 = theta2_k - (eta * dk_02)
-        lambda1_k1 = lambda1_k - (eta * dk_1)
+        lambda1_k1 = lambda1_k - (eta * dk_11)
+        lambda2_k1 = lambda2_k - (eta * dk_12)
 
         # projection onto box: [0,r]
         lambda1_k1 = min(max(lambda1_k1, 0), r)
+        lambda2_k1 = min(max(lambda1_k1, 0), r)
         # lambda1 = 0 if lambda1 < 0 else (r if lambda1 > r else lambda1)
         theta1 = theta1_k1
         theta2 = theta2_k1
         lambda1 = lambda1_k1
+        lambda2 = lambda2_k1
 
         # calc d1 d2 d3, and update x, y, z respectively
-        ck = (k+1)**p
+        ck = (k+1)**0.3
         # dkx = F_x(x, y1, y2) / ck + f_x(x, y1, y2) - f_x(x, theta1, theta2) - lambda1 * g_x(x, theta1, theta2)
-        dkx = (1/ck) * (x_k-y2_k) - y1_k + theta1_k1 - lambda1_k1 * e1
+        dkx = (1/ck) * (x_k - y2_k) - y1_k + theta1_k1 - (lambda1_k1-lambda2_k1) * e1
         # dky = F_y(x, y1, y2) / ck + f_y(x, y1, y2) - (y - theta) / gamma1
         dky_1 = (y1_k - e1)/ck + y1_k - x_k - (y1_k - theta1_k1)/gamma1
         dky_2 = (y2_k - x_k)/ck + e1 - (y2_k-theta2_k)/gamma1
         # dky = np.concatenate((dky_1, dky_2),axis=0)
-        dkz = -(lambda1_k1 - z_k) / gamma2
+        dkz_1 = -(lambda1_k1 - z1_k) / gamma2
+        dkz_2 = -(lambda2_k1 - z2_k) / gamma2
 
         x_k1 = x_k - alpha * dkx
         y1_k1 = y1_k - alpha * dky_1
@@ -134,15 +143,22 @@ def fun(n):
         y2_k1 = y_k1[100:]
         # print(round(float(g(x_k1, y1_k1, y2_k1)), 5))
 
-        z_k1 = z_k - (beta * dkz)
+        z1_k1 = z1_k - (beta * dkz_1)
         # projection onto box: [0,r]
-        z_k1 = min(max(z_k1, 0), r)
+        z1_k1 = min(max(z1_k1, 0), r)
         # z = 0 if z < 0 else (r if z > r else z)
+
+        z2_k1 = z2_k - (beta * dkz_2)
+        # projection onto box: [0,r]
+        z2_k1 = min(max(z2_k1, 0), r)
+        # z = 0 if z < 0 else (r if z > r else z)
+
 
         x = x_k1
         y1 = y1_k1
         y2 = y2_k1
-        z = z_k1
+        z1 = z1_k1
+        z2 = z2_k1
         y_k1 = np.concatenate((y1_k1, y2_k1), axis=0)
         arrF[0, k] = F(x_k1, y1_k1, y2_k1)
         arrX[0, k] = np.linalg.norm(x_k1-x_opt, 2) / np.linalg.norm(x_opt, 2)
@@ -150,13 +166,12 @@ def fun(n):
 
 
 if __name__ == '__main__':
-    alpha = 0.001
+    alpha = 0.002
     beta = 0.002
     eta = 0.03
     gamma1 = 0.1
     gamma2 = 0.1
     r = 1
-    p = 0.3
     e1 = np.ones((100, 1))
     e2 = np.ones((200, 1))
     e3 = np.ones((300, 1))
@@ -166,7 +181,7 @@ if __name__ == '__main__':
     y2_opt = -0.4 * e1
     y_opt = np.concatenate((y1_opt, y2_opt), axis=0)
     print(F(x_opt, y1_opt, y2_opt))
-    iteration = 100000
+    iteration = 5000
     arrF = np.zeros((1, iteration))
     arrX = np.zeros((1, iteration))
     arrY = np.zeros((1, iteration))

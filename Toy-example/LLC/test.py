@@ -71,7 +71,7 @@ def g(x, y):
     return e1.T @ x + e2.T @ y
 
 
-def fun(n, alpha=0.008, beta=0.02, eta=0.01, _lambda=1, gamma1=10, gamma2=10, u=1000, seed=1):
+def fun(n, alpha=0.005, beta=0.002, eta=0.013, _lambda=1, gamma1=10, gamma2=10, u=1000, seed=1):
     rng = np.random.default_rng(seed)
     x_opt = -0.3 * e1
     y1_opt = 0.7 * e1
