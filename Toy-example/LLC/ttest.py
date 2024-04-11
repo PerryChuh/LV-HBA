@@ -137,7 +137,7 @@ def fun(n):
         w = np.concatenate((x_k1, y1_k1, y2_k1), axis=0)
         scale = np.dot(e3.T, np.concatenate((x_k1, y1_k1, y2_k1)))
         w = w - scale / (300) * e3
-        # w = proj(w, e3.T)
+
 
         x_k1 = w[:100]
         y_k1 = w[100:]
@@ -148,7 +148,7 @@ def fun(n):
 
         z1_k1 = z1_k - (beta * dkz_1)
         # projection onto box: [0,r]
-        z1_k1 = min(max(z1_k1, 0.0001), r)
+        z1_k1 = min(max(z1_k1, 0), r)
         # z = 0 if z < 0 else (r if z > r else z)
 
         z2_k1 = z2_k - (beta * dkz_2)

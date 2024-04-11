@@ -86,7 +86,6 @@ for i in range(N):
     atx = np.dot(one_3n.T, np.concatenate((x_m, y1_m, y2_m)))
     if atx < 0:
         atx = 0
-
     w_m = np.concatenate((x_m, y1_m, y2_m))
     w = w_m - (atx / (3 * n)) * one_3n
 

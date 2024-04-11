@@ -150,7 +150,7 @@ def fun(n):
 
 
 if __name__ == '__main__':
-    alpha = 0.001
+    alpha = 0.005
     beta = 0.002
     eta = 0.03
     gamma1 = 0.1

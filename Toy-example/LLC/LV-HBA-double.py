@@ -61,7 +61,7 @@ def dz2(lambda2, gamma2, z2):
 
 
 # Iteration
-N = 5000
+N = 10000
 iter = np.arange(N)
 alpha = 0.002
 beta = 0.002
@@ -70,17 +70,17 @@ gamma1 = 10
 gamma2 = 10
 r = 1
 
+
+
 x = 10 * e1
 y1 = 10 * e1
 y2 = 10 * e1
-
 theta1 = e1
 theta2 = e1
 lambda1 = 1
 lambda2 = 1
 z1 = 10
 z2 = 10
-
 
 value = np.zeros(N)
 value1 = np.zeros(N)

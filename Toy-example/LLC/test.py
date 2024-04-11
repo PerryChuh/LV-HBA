@@ -40,9 +40,6 @@ A = np.concatenate((E, O), axis=1)
 B = np.concatenate((O, E), axis=1)
 
 
-def F(x, y):
-    return 0.5*((x-B@y).T@(x-B@y))+0.5*((A@y-e1).T@(A@y-e1))
-
 def F_x(x, y):
     return x - B @ y
 
@@ -71,7 +68,7 @@ def g(x, y):
     return e1.T @ x + e2.T @ y
 
 
-def fun(n, alpha=0.005, beta=0.002, eta=0.013, _lambda=1, gamma1=10, gamma2=10, u=1000, seed=1):
+def fun(n, alpha=0.008, beta=0.02, eta=0.01, _lambda=1, gamma1=10, gamma2=10, u=1000, seed=1):
     rng = np.random.default_rng(seed)
     x_opt = -0.3 * e1
     y1_opt = 0.7 * e1
@@ -104,7 +101,7 @@ def fun(n, alpha=0.005, beta=0.002, eta=0.013, _lambda=1, gamma1=10, gamma2=10, 
     for k in range(n):
         # clac d4
         # ck= 10000000*(k+1)*0.3
-        ck = 0.025 * (k + 1) ** 0.3
+        ck = (k + 1) ** 0.3
         d4_0 = f_y(x, theta) + _lambda * g_y(x, theta) + (theta - y) / gamma1
         d4_1 = - g(x, theta) + (_lambda - z) / gamma2
 
@@ -131,7 +128,7 @@ def fun(n, alpha=0.005, beta=0.002, eta=0.013, _lambda=1, gamma1=10, gamma2=10, 
         y = w[100:]
         d3 = - (_lambda - z) / gamma2
         t_z = z - (beta * d3)
-        z = -u if t_z < -u else (u if t_z > u else t_z)
+        z = 0 if t_z < 0 else (u if t_z > u else t_z)
         y1 = w[100:200]
         y2 = w[200:]
         # y_opt = C@((Ix-torch.linalg.pinv(A@C)@(A@C))@x-torch.linalg.pinv(A@C)@(H@x))
@@ -143,8 +140,6 @@ def fun(n, alpha=0.005, beta=0.002, eta=0.013, _lambda=1, gamma1=10, gamma2=10, 
         # res.append(F(x,y).detach().numpy())
         time_computation.append(time.time() - algorithm_start_time)
         y_gap1 = (np.linalg.norm(x - x_opt, 2) / np.linalg.norm(x_opt, 2))
-        arr[0, k] = F(x, y)
-
     return res1, res2, time_computation
 
 
@@ -176,8 +171,6 @@ if __name__ == '__main__':
     # h = np.random.rand(90,100)
     # np.save(os.path.join(str(ROOT), 'h.npy'), h)
     # res, tc = fun(100, alpha=0.1, beta=0.1, eta=0.1, _lambda=0.1, gamma1=1.2, gamma2=1.2, u=100000, seed=1)
-
-    arr = np.zeros((1, 1500))
     res1, res2, tc = fun(1500)
 
     tmp_time = int(time.time())
@@ -186,11 +179,4 @@ if __name__ == '__main__':
     ax = plt.gca()
     plt.plot(tc, res1)
     # plt.plot(tc,res2)
-    plt.show()
-
-    plt.plot(arr.flatten())
-    plt.xlabel('Index')
-    plt.ylabel('F(x, y)')
-    plt.title('F(x, y) Variation')
-    plt.grid(True)
     plt.show()
