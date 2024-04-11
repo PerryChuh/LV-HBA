@@ -82,15 +82,18 @@ lambda2 = 1
 z1 = 10
 z2 = 10
 
-value = np.zeros(N)
-value1 = np.zeros(N)
-difference = np.zeros(N)
-difference[0] = np.linalg.norm(np.concatenate((x, y1, y2)) - np.concatenate((xstar, y1star, y2star))) / np.linalg.norm(np.concatenate((xstar, y1star, y2star)))
-value[0] = F(x, y1, y2)
+convergenceX = np.zeros(N)
+Fvalue = np.zeros(N)
+convergenceY = np.zeros(N)
+etw = np.ones(N)
+convergenceY[0] = np.linalg.norm(np.concatenate((y1, y2)) - np.concatenate((y1star, y2star))) / np.linalg.norm(np.concatenate((y1star, y2star)))
+convergenceX[0] = np.linalg.norm(xstar - x) / np.linalg.norm(xstar)
+Fvalue[0] = F(x, y1, y2)
 
 for i in iter:
-    c = (i + 1) ** (0.3)
+    c = (i + 1) ** 0.3
     x_origin = x.copy()
+    scale = np.dot(e3.T, np.concatenate((x, y1, y2)))
     theta1_origin = theta1.copy()
     theta2_origin = theta2.copy()
 
@@ -109,33 +112,34 @@ for i in iter:
 
     z1 = min(max((z1 - beta * dz1(lambda1, gamma2, z1)), 0), r)
     z2 = min(max((z2 - beta * dz2(lambda2, gamma2, z2)), 0), r)
-    value[i] = np.linalg.norm(x - xstar) / np.linalg.norm(xstar)
-    value1[i] = F(x, y1, y2)
-    difference[i] = np.linalg.norm(np.concatenate((y1, y2)) - np.concatenate((y1star, y2star))) / np.linalg.norm(np.concatenate((y1star, y2star)))
-
-print(difference)
-print(value)
-print(min(value))
-print(min(difference))
+    convergenceX[i] = np.linalg.norm(x - xstar) / np.linalg.norm(xstar)
+    convergenceY[i] = np.linalg.norm(np.concatenate((y1, y2)) - np.concatenate((y1star, y2star))) / np.linalg.norm(np.concatenate((y1star, y2star)))
+    Fvalue[i] = F(x, y1, y2)
+    etw[i] = (e3.T @ np.concatenate((x, y1, y2)))
+    
+print('max(etw):', max(etw))
+print('min(Fvalue)', min(Fvalue))
+print('min(convergenceY)', min(convergenceY))
+print('min(convergenceX)', min(convergenceX))
 
 plt.figure(figsize=(10, 5))
 plt.subplot(1, 3, 1)
-plt.plot(iter, value)
+plt.plot(iter, convergenceX)
 plt.xlabel('Iteration')
 plt.ylabel('||xk-x||/||x||')
-plt.title('Function Value Convergence')
+plt.title('Function convergenceX Convergence')
 
 plt.subplot(1, 3, 2)
-plt.plot(iter, difference)
+plt.plot(iter, convergenceY)
 plt.xlabel('Iteration')
 plt.ylabel('||yk-y||/||y||')
 plt.title('Point Sequence Convergence')
 
 plt.subplot(1, 3, 3)
-plt.plot(iter, value1)
+plt.plot(iter, Fvalue)
 plt.xlabel('Iteration')
 plt.ylabel('F(xk,yk)')
-plt.title('Function Value')
+plt.title('Function convergenceX')
 
 plt.tight_layout()
 plt.show()
