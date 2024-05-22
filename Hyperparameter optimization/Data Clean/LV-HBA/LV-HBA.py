@@ -55,7 +55,7 @@ def run(seed, epochs):
     data_list=[]
 
     # f = open("fourclass.txt",encoding = "utf-8")
-    f = open("gisette_scale",encoding = "utf-8")
+    f = open("breast-cancer.txt", encoding = "utf-8")
     a_list=f.readlines()
     f.close()
     for line in a_list:
